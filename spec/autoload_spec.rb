@@ -1,0 +1,7 @@
+require_relative '../lib/modules/outputs'
+require_relative '../lib/modules/data_base'
+require_relative '../lib/entities/game'
+require_relative '../lib/modules/rules'
+require_relative '../lib/modules/stats'
+require_relative '../lib/modules/registration'
+require_relative '../lib/entities/console'

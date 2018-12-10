@@ -1,2 +1,2 @@
-require_relative './autoload/autoload.rb'
-Console.new.benig_game
+require_relative './lib/autoload/autoload.rb'
+Console.new.process

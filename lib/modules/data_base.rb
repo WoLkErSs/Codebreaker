@@ -1,5 +1,5 @@
 module Database
-  FOLDER_PATH = './database/'.freeze
+  FOLDER_PATH = './lib/database/'.freeze
   FILE_PATH = 'stats'.freeze
   FORMAT_PATH = '.yml'.freeze
   PATH = FOLDER_PATH + FILE_PATH + FORMAT_PATH

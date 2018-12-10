@@ -1,0 +1,14 @@
+en:
+  greeting: 'welcome to codebreaker'
+  choose_action: 'Choose actions: start, rules, stats or exit'
+  select_difficulty: 'Select difficulty of game: easy, hard, expert'
+  in_process: 'Try to guess a secret code of Da`Vanya'
+  wrong_input_action: "You have passed unexpected command.\n
+    Please choose one from listed commands"
+  ask_name: 'Enter your name'
+  leave: 'Goodbye'
+  wrong_input_code: 'You should enter one of the valid commands - one more time.'
+  when_no_hints: 'You have not hints'
+  when_lose: 'Hey loser, still play?'
+  when_win: "Congratulation! You won!\n
+    Do you want save result? -> press "

@@ -1,0 +1,42 @@
+--- !ruby/object:Game
+hints_used: 0
+attempts_used: 3
+secret_code:
+- 3
+- 1
+- 4
+- 4
+name: Ivan
+attempts_total: 10
+hints_total: 2
+attempts_left: 7
+difficulty: easy
+winner: true
+--- !ruby/object:Game
+hints_used: 0
+attempts_used: 1
+secret_code:
+- 6
+- 0
+- 2
+- 4
+name: Adwad
+attempts_total: 10
+hints_total: 2
+attempts_left: 9
+difficulty: easy
+winner: true
+--- !ruby/object:Game
+hints_used: 0
+attempts_used: 1
+secret_code:
+- 3
+- 1
+- 5
+- 0
+name: Asd
+attempts_total: 10
+hints_total: 2
+attempts_left: 9
+difficulty: easy
+winner: true
