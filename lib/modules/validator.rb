@@ -10,4 +10,8 @@ module Validation
   def validate_match(entity)
     entity.split('').map(&:to_i).map(&:to_s).join('') == entity
   end
+
+  def validate_length(entity, enti_length)
+    entity.length == enti_length
+  end
 end

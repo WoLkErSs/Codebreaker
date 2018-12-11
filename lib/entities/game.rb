@@ -1,13 +1,15 @@
 class Game
-  include Outputs
   include Validation
 
   AMOUNT_DIGITS = 4
   RANGE_OF_DIGITS = { first: 0, last: 6 }.freeze
-  DIFFICULTY_LEVELS = { easy: 'Easy', hard: 'Hard', expert: 'Expert' }.freeze
+  DIFFICULTY_LEVELS = {
+                        easy: 'Easy',
+                        hard: 'Hard',
+                        expert: 'Expert' }.freeze
   GUESS_CODE = { hint: 'hint', leave: 'exit' }.freeze
 
-  attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left, :secret_code
+  attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
   attr_accessor :errors
   def initialize
     @errors = []
@@ -19,6 +21,7 @@ class Game
 
   def try(user_inputed_code)
     return use_hint if user_inputed_code == GUESS_CODE[:hint]
+
     verdict(user_inputed_code.split('').map(&:to_i)) if check_input(user_inputed_code)
   end
 
@@ -67,19 +70,28 @@ class Game
 
     pin = []
     sec_code = @secret_code.map(&:dup)
+    guess_code = user_code.map(&:dup)
+
     a = user_code.zip(@secret_code)
+    puts a.inspect
     a.map do |user_digit, secret_digit|
       if user_digit == secret_digit
         pin << '+'
-      elsif sec_code.include? user_digit
+        guess_code.delete_at(guess_code.index(user_digit))
+        sec_code.delete_at(sec_code.index(secret_digit))
+      end
+    end
+    sec_code.each do |x|
+      if guess_code.include? x
         pin << '-'
+        guess_code.delete_at(x)
       end
     end
     pin.sort
   end
 
   def easy
-    @attempts_total = 2
+    @attempts_total = 15
     @hints_total = 2
     @attempts_left = @attempts_total
     @difficulty =  DIFFICULTY_LEVELS[:easy]

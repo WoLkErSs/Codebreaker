@@ -11,4 +11,6 @@ en:
   when_no_hints: 'You have not hints'
   when_lose: 'Hey loser, still play?'
   when_win: "Congratulation! You won!\n
-    Do you want save result? -> press "
+    Do you want to save result? -> press 'y'"
+  when_wrong_name: 'Name length must be from 3 to 20 words'
+  when_incorrect_guess: 'Try to nter correct number'
