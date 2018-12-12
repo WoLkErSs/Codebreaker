@@ -17,24 +17,24 @@ class Console
   end
 
   def process
-    while @player.name.nil?
-      output.for_choose_action
-      choose_action(input?)
-    end
+    choose_action
     set_options_befor_start
-    output.in_process
     guess_code
     @game.winner ? winner(@game) : loser
   end
 
-  private
 
-  def choose_action(action)
-    case action
-    when AVAILABLE_ACTIONS[:start] then call_registration
-    when AVAILABLE_ACTIONS[:rules] then rules_call
-    when AVAILABLE_ACTIONS[:stats] then statistics
-    else output.wrong_input_action
+  def choose_action
+    output.for_choose_action
+    loop do
+      action = input?
+      break if !@player.name.nil?
+      case input?
+      when AVAILABLE_ACTIONS[:start] then return call_registration
+      when AVAILABLE_ACTIONS[:rules] then rules_call
+      when AVAILABLE_ACTIONS[:stats] then statistics
+      else output.wrong_input_action
+      end
     end
   end
 
@@ -46,6 +46,7 @@ class Console
   end
 
   def guess_code
+    output.in_process
     while @game.attempts_left.positive? && @game.winner.nil?
       guess = input?
       if !validation(guess, Game::AMOUNT_DIGITS)
@@ -60,6 +61,8 @@ class Console
       end
     end
   end
+
+  private
 
   def loser
     output.lose

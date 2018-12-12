@@ -2,11 +2,15 @@ require 'simplecov'
 require 'undercover'
 
 SimpleCov.start do
-  add_filter(%r{\/spec\/})
+  add_filter('/spec/')
+  minimum_coverage 80
 end
 
-require_relative './autoload_spec'
+require_relative '../lib/autoload/autoload'
 RSpec.configure do |config|
+  config.color = true
+  config.formatter = :documentation
+
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end

@@ -16,7 +16,7 @@ class Game
     @hints_used = 0
     @attempts_used = 0
     @secret_code = (0...AMOUNT_DIGITS).map { rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
-    @arr_for_hints = @secret_code.map(&:dup).shuffle
+    @arr_for_hints = @secret_code.map(&:dup).shuffle(random: Random.new(1))
   end
 
   def try(user_inputed_code)
@@ -73,7 +73,6 @@ class Game
     guess_code = user_code.map(&:dup)
 
     a = user_code.zip(@secret_code)
-    puts a.inspect
     a.map do |user_digit, secret_digit|
       if user_digit == secret_digit
         pin << '+'

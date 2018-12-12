@@ -10,11 +10,12 @@ group :development do
   gem 'rubocop', '~> 0.60.0', require: false
   gem 'rubocop-rspec'
   gem 'i18n'
+  gem 'terminal-table'
 end
 
 group :test do
   gem "rspec", "~> 3.8"
-  gem 'simplecov'
+  gem 'simplecov', require: false, group: :test
   gem 'simplecov-lcov'
   gem 'undercover'
 end
