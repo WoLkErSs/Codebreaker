@@ -12,12 +12,12 @@ class Player
   end
 
   def assign_name(name)
-    validation(name) ? @name = name : @errors_store << I18n.t(:when_wrong_name)
+    validate_name(name) ? @name = name : @errors_store << I18n.t(:when_wrong_name)
   end
 
   private
 
-  def validation(name)
+  def validate_name(name)
     return false if validate_presence?(name)
 
     validate_length_in_range(name, MIN_LENGTH, MAX_LENGTH)

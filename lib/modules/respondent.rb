@@ -1,5 +1,4 @@
-class Respondent
-
+module Respondent
   def greeting
     puts I18n.t(:greeting)
   end
@@ -40,7 +39,7 @@ class Respondent
     puts I18n.t(:ask_name)
   end
 
-  def leave
+  def leave_output
     puts I18n.t(:leave)
   end
 end

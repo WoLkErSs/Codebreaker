@@ -3,114 +3,104 @@ class Console
   include Statistics
   include Validation
   include Rules
+  include Respondent
+
   AVAILABLE_ACTIONS = {
                         start: 'start',
                         rules: 'rules',
                         stats: 'stats',
                         leave: 'exit',
                         save_player: 'y'}.freeze
+  AVAILABLE_DIFFICULTY = [
+                          'easy',
+                          'hard',
+                          'expert'].freeze
 
   def initialize
-    output.greeting
     @player = Player.new
-    @game = Game.new
   end
 
   def process
     choose_action
-    set_options_befor_start
+    start_game
     guess_code
     @game.winner ? winner(@game) : loser
   end
 
-
   def choose_action
-    output.for_choose_action
+    greeting
     loop do
-      action = input?
-      break if !@player.name.nil?
-      case input?
+      for_choose_action
+      case input
       when AVAILABLE_ACTIONS[:start] then return call_registration
       when AVAILABLE_ACTIONS[:rules] then rules_call
       when AVAILABLE_ACTIONS[:stats] then statistics
-      else output.wrong_input_action
-      end
-    end
-  end
-
-  def set_options_befor_start
-    while @game.hints_total.nil?
-      output.select_difficulty
-      @game.set_up_difficulty(input?.capitalize, @player.name)
-    end
-  end
-
-  def guess_code
-    output.in_process
-    while @game.attempts_left.positive? && @game.winner.nil?
-      guess = input?
-      if !validation(guess, Game::AMOUNT_DIGITS)
-        what_guessed = @game.try(guess)
-        output.show(what_guessed) if what_guessed.is_a? Numeric
-        output.show(what_guessed.join('')) if what_guessed.is_a? Array
-        errors = @game.errors
-        output.show(errors) if errors.any?
-        @game.errors = []
-      else
-        output.incorrect_guess
+      else wrong_input_action
       end
     end
   end
 
   private
 
+  def start_game
+    loop do
+      select_difficulty
+      user_difficulty_input = input
+      @difficulty = user_difficulty_input.capitalize
+      break if AVAILABLE_DIFFICULTY.include?(user_difficulty_input)
+    end
+    @game = Game.new(user_difficulty: @difficulty, user_name: @player.name)
+  end
+
+  def guess_code
+    in_process
+    loop do
+      return unless @game.attempts_left.positive? && @game.winner.nil?
+      what_guessed = @game.try(input)
+      show(what_guessed) if what_guessed.is_a? Numeric
+      show(what_guessed.join('')) if what_guessed.is_a? Array
+      errors = @game.errors
+      show(errors) if errors.any?
+      @game.errors = []
+      incorrect_guess if what_guessed.nil?
+    end
+  end
+
   def loser
-    output.lose
-    @game = Game.new
-    @player = Player.new
-    process
+    lose
+    Console.new.process
   end
 
   def winner(player)
-    output.win
-    save_to_db(player) if input? == AVAILABLE_ACTIONS[:save_player]
-    @game = Game.new
-    @player = Player.new
-    process
-  end
-
-
-  def validation(entity, length)
-    validate_presence?(entity)
-    !validate_length(entity,length)
+    win
+    save_to_db(player) if input == AVAILABLE_ACTIONS[:save_player]
+    Console.new.process
   end
 
   def call_registration
-    output.ask_name
+    ask_name
     loop do
-      break unless @player.name.nil?
+      break if !@player.name.nil?
 
-      @player.assign_name(input?.capitalize)
+      @player.assign_name(input.capitalize)
       errors = @player.errors_store
-      output.show(errors) if errors.any?
+      show(errors) if errors.any?
       @player.errors_store = []
     end
   end
 
-  def output
-    @output ||= Respondent.new
+  def input
+    input = gets.chomp.downcase
+    leave if input == AVAILABLE_ACTIONS[:leave]
+    input
   end
 
-  def input?
-    input = gets.chomp.downcase
-    if input == AVAILABLE_ACTIONS[:leave]
-      output.leave
-      exit
-    else input
-    end
+  def leave
+    leave_output
+    exit
   end
 
   def statistics
-    output.show(winners(load_db))
+    show(winners(load_db))
   end
 end

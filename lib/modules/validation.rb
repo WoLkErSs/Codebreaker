@@ -11,7 +11,7 @@ module Validation
     entity.split('').map(&:to_i).map(&:to_s).join('') == entity
   end
 
-  def validate_length(entity, enti_length)
-    entity.length == enti_length
+  def validate_length(entity, set_length)
+    entity.length == set_length
   end
 end
