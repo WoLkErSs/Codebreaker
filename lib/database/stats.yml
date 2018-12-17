@@ -40,3 +40,23 @@ hints_total: 2
 attempts_left: 9
 difficulty: easy
 winner: true
+--- !ruby/object:Game
+name: Dawda
+errors: []
+hints_used: 0
+attempts_used: 1
+secret_code:
+- 1
+- 2
+- 3
+- 4
+arr_for_hints:
+- 4
+- 3
+- 1
+- 2
+attempts_total: 15
+hints_total: 2
+attempts_left: 14
+difficulty: easy
+winner: true

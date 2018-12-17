@@ -16,10 +16,6 @@ class Console
                           'hard',
                           'expert'].freeze
 
-  def initialize
-    @player = Player.new
-  end
-
   def process
     choose_action
     start_game
@@ -49,13 +45,14 @@ class Console
       @difficulty = user_difficulty_input.capitalize
       break if AVAILABLE_DIFFICULTY.include?(user_difficulty_input)
     end
-    @game = Game.new(user_difficulty: @difficulty, user_name: @player.name)
+    @game = Game.new(user_difficulty: @difficulty, player: @player)
   end
 
   def guess_code
     in_process
     loop do
       return unless @game.attempts_left.positive? && @game.winner.nil?
+
       what_guessed = @game.try(input)
       show(what_guessed) if what_guessed.is_a? Numeric
       show(what_guessed.join('')) if what_guessed.is_a? Array
@@ -80,12 +77,11 @@ class Console
   def call_registration
     ask_name
     loop do
-      break if !@player.name.nil?
-
-      @player.assign_name(input.capitalize)
+      @player = Player.new(input.capitalize)
       errors = @player.errors_store
       show(errors) if errors.any?
       @player.errors_store = []
+      return if !@player.name.nil?
     end
   end
 

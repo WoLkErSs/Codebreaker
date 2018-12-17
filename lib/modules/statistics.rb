@@ -1,5 +1,6 @@
 module Statistics
   def winners(base)
+    puts base.inspect
     data = multi_sort(base)
     array_rows = to_table(data)
     table(array_rows)
