@@ -1,10 +1,9 @@
-require 'pry'
 class Game
   include Validation
 
   AMOUNT_DIGITS = 4
   DIFFICULTIES = {
-                easy: {attempts: 15, hints: 2, difficulty: 'easy'},
+                easy: {attempts: 2, hints: 2, difficulty: 'easy'},
                 hard: {attempts: 10, hints: 2, difficulty: 'hard'},
                 expert: {attempts: 5, hints: 1, difficulty: 'expert'}}.freeze
   RANGE_OF_DIGITS = { first: 0, last: 6 }.freeze
@@ -13,14 +12,16 @@ class Game
   attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
   attr_accessor :errors
 
-  def initialize(user_difficulty:, player:)
-    @name = player.name
-    @errors = []
+  def initialize
     @hints_used = 0
     @attempts_used = 0
-    @secret_code = []
-    AMOUNT_DIGITS.times { @secret_code << rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
-    @arr_for_hints = @secret_code.map(&:dup).shuffle(random: Random.new(1))
+    @secret_code = [1,2,3,4]
+    # AMOUNT_DIGITS.times { @secret_code << rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
+    @arr_for_hints = @secret_code.map(&:dup).shuffle
+  end
+
+  def game_options(user_difficulty:, player:)
+    @name = player.name
     assign_difficulty( DIFFICULTIES[user_difficulty.downcase.to_sym] )
   end
 
@@ -40,10 +41,11 @@ class Game
   end
 
   def check_input(entity)
+    @errors = []
     if validation(entity, AMOUNT_DIGITS)
       to_count_try
     else
-      @errors << I18n.t(:wrong_input_code)
+      @errors << I18n.t(:when_incorrect_guess)
       false
     end
   end
@@ -66,7 +68,7 @@ class Game
     else
       @hints_total -= 1
       @hints_used += 1
-      @arr_for_hints.pop
+      [@arr_for_hints.pop]
     end
   end
 

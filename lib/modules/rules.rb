@@ -4,7 +4,7 @@ module Rules
   FORMAT_PATH = '.txt'.freeze
   PATH = FOLDER_PATH + FILE_PATH + FORMAT_PATH
 
-  def rules_call
+  def show_rules
     File.open(PATH, 'r') do |f|
       f.each_line do |line|
         puts line

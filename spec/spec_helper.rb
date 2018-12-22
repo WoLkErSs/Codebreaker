@@ -3,7 +3,7 @@ require 'undercover'
 
 SimpleCov.start do
   add_filter('/spec/')
-  minimum_coverage 80
+  minimum_coverage 95
 end
 
 require_relative '../lib/autoload/autoload'

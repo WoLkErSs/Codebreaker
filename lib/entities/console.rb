@@ -1,7 +1,7 @@
+require 'pry'
 class Console
   include Database
   include Statistics
-  include Validation
   include Rules
   include Respondent
 
@@ -16,11 +16,9 @@ class Console
                           'hard',
                           'expert'].freeze
 
-  def process
-    choose_action
-    start_game
-    guess_code
-    @game.winner ? winner(@game) : loser
+  def initialize(process_helper: ProcessHelper.new, set_game: Game.new)
+    @process_helpers = process_helper
+    @game = set_game
   end
 
   def choose_action
@@ -28,8 +26,8 @@ class Console
     loop do
       for_choose_action
       case input
-      when AVAILABLE_ACTIONS[:start] then return call_registration
-      when AVAILABLE_ACTIONS[:rules] then rules_call
+      when AVAILABLE_ACTIONS[:start] then return process
+      when AVAILABLE_ACTIONS[:rules] then show_rules
       when AVAILABLE_ACTIONS[:stats] then statistics
       else wrong_input_action
       end
@@ -38,51 +36,49 @@ class Console
 
   private
 
-  def start_game
-    loop do
-      select_difficulty
-      user_difficulty_input = input
-      @difficulty = user_difficulty_input.capitalize
-      break if AVAILABLE_DIFFICULTY.include?(user_difficulty_input)
-    end
-    @game = Game.new(user_difficulty: @difficulty, player: @player)
+  def process
+    @player = @process_helpers.setup_player
+    @difficulty = @process_helpers.setup_difficulty
+    set_game_options(@difficulty, @player)
+    play_game
   end
 
-  def guess_code
+  def set_game_options(difficulty, player_object)
+    @game.game_options(user_difficulty: difficulty, player: player_object)
+  end
+
+  def play_game
     in_process
     loop do
-      return unless @game.attempts_left.positive? && @game.winner.nil?
-
       what_guessed = @game.try(input)
-      show(what_guessed) if what_guessed.is_a? Numeric
       show(what_guessed.join('')) if what_guessed.is_a? Array
-      errors = @game.errors
-      show(errors) if errors.any?
-      @game.errors = []
-      incorrect_guess if what_guessed.nil?
+      show(@game.errors) if @game.errors.any?
+      break unless validate_game_state
     end
+    result_decision
+  end
+
+  def validate_game_state
+    @game.attempts_left.positive? && @game.winner.nil?
+  end
+
+  def result_decision
+    @game.winner ? winner(@game) : loser
   end
 
   def loser
     lose
-    Console.new.process
+    new_process
   end
 
   def winner(player)
     win
     save_to_db(player) if input == AVAILABLE_ACTIONS[:save_player]
-    Console.new.process
+    new_process
   end
 
-  def call_registration
-    ask_name
-    loop do
-      @player = Player.new(input.capitalize)
-      errors = @player.errors_store
-      show(errors) if errors.any?
-      @player.errors_store = []
-      return if !@player.name.nil?
-    end
+  def new_process
+    Console.new.choose_action
   end
 
   def input
