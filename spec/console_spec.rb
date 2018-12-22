@@ -1,15 +1,15 @@
-
 RSpec.describe Console do
   CHOOSE_ACTION = "Choose actions: start, rules, stats or exit\n"
   PLAYER_NAME = 'Gilly'
   POSITIVE_NUMBER = 2
   NOT_POSITIVE_NUMBER = 0
   let(:player_double) {double('Player', name: PLAYER_NAME)}
-  let(:game_double) {double('Game', try: [1], attempts_left: 5, winner: true, name: PLAYER_NAME)}
+  let(:game_double) {double('Game', difficulty: 'easy', attempts_total: 10, attempts_used: 2, hints_total: 2, hints_used: 4, try: [1], attempts_left: 5, winner: true, name: PLAYER_NAME)}
   let(:processhelper_double) {double('ProcessHelper', setup_difficulty: 'easy', setup_player: player_double)}
   # let(:console_double) { double('Console',process_helper: processhelper_double, set_game: game_double)}
+  let(:statistics_double) { double('Statistics', winners: []) }
 
-  subject { described_class.new(process_helper: processhelper_double, set_game: game_double) }
+  subject { described_class.new(process_helper: processhelper_double, set_game: game_double, statistics: statistics_double) }
   describe '#new' do
     context 'start' do
       it { expect(subject.instance_variable_get(:@process_helpers)).to eq(processhelper_double) }
@@ -86,7 +86,6 @@ RSpec.describe Console do
       it do
         game_double.stub(:errors) {[]}
         game_double.stub(:try) {[1]}
-        # game_double.stub(:winner) {false}
         allow(subject).to receive_message_chain(:gets, :chomp).and_return('hint', 'exit')
         allow(subject).to receive(:validate_game_state).and_return(false)
         expect(subject).to receive(:puts).with(I18n.t(:in_process))
@@ -100,7 +99,6 @@ RSpec.describe Console do
       it do
         game_double.stub(:errors) {[I18n.t(:when_incorrect_guess)]}
         game_double.stub(:try) {nil}
-        # game_double.stub(:winner) {false}
         allow(subject).to receive_message_chain(:gets, :chomp).and_return('something herny', 'exit')
         allow(subject).to receive(:validate_game_state).and_return(false)
         expect(subject).to receive(:puts).with(I18n.t(:in_process))
@@ -223,13 +221,32 @@ RSpec.describe Console do
   end
 
   describe '#statistics' do
-    before { allow(subject).to receive(:choose_action) }
+    before do
+      allow(subject).to receive(:choose_action)
+      subject.instance_variable_set(:@stats, statistics_double)
+    end
     context 'when with_not_empty_db' do
       it do
+        # statistics_double.stub(:winners) {[]}
         allow(subject).to receive(:load_db)
-        expect(subject).to receive(:winners)
+        expect(subject.instance_variable_get(:@stats)).to receive(:winners)
         expect(subject).to receive(:show)
         subject.send(:statistics)
+      end
+    end
+  end
+end
+
+RSpec.describe Statistics do
+  subject { described_class.new }
+  let(:game_double) {instance_double('Game', name: 'Moroz', difficulty: 'easy', attempts_total: 10, attempts_used: 2, hints_total: 2, hints_used: 4)}
+  describe '#winners' do
+    context 'show winners table' do
+      it do
+        expect(subject.send(:multi_sort, [game_double])).to be_an_instance_of(Array)
+        expect(subject.send(:to_table, [game_double])).to be_an_instance_of(Array)
+        expect(subject.send(:to_table, [game_double])).to be_an_instance_of(Array)
+        subject.winners([game_double])
       end
     end
   end

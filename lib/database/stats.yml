@@ -1,0 +1,40 @@
+--- !ruby/object:Game
+hints_used: 0
+attempts_used: 1
+secret_code:
+- 1
+- 2
+- 3
+- 4
+arr_for_hints:
+- 4
+- 3
+- 1
+- 2
+name: Aawdaw
+attempts_total: 2
+hints_total: 2
+attempts_left: 1
+difficulty: easy
+errors: []
+winner: true
+--- !ruby/object:Game
+hints_used: 0
+attempts_used: 1
+secret_code:
+- 1
+- 2
+- 3
+- 4
+arr_for_hints:
+- 2
+- 1
+- 3
+- 4
+name: Awdawd
+attempts_total: 2
+hints_total: 2
+attempts_left: 1
+difficulty: easy
+errors: []
+winner: true

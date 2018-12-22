@@ -1,4 +1,8 @@
-module Statistics
+class Statistics
+  include Database
+
+  attr_reader :winners
+
   def winners(base)
     data = multi_sort(base)
     array_rows = to_table(data)

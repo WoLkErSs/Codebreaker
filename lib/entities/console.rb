@@ -1,7 +1,6 @@
-require 'pry'
 class Console
   include Database
-  include Statistics
+  # include Statistics
   include Rules
   include Respondent
 
@@ -16,9 +15,10 @@ class Console
                           'hard',
                           'expert'].freeze
 
-  def initialize(process_helper: ProcessHelper.new, set_game: Game.new)
+  def initialize(process_helper: ProcessHelper.new, set_game: Game.new, statistics: Statistics.new)
     @process_helpers = process_helper
     @game = set_game
+    @stats = statistics
   end
 
   def choose_action
@@ -93,6 +93,6 @@ class Console
   end
 
   def statistics
-    show(winners(load_db))
+    show(@stats.winners(load_db))
   end
 end
