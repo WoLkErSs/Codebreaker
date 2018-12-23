@@ -22,10 +22,6 @@ module Respondent
   def show(argument)
     puts argument
   end
-  # 
-  # def incorrect_guess
-  #   puts I18n.t(:when_incorrect_guess)
-  # end
 
   def lose
     puts I18n.t(:when_lose)

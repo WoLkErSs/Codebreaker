@@ -3,9 +3,10 @@ class Game
 
   AMOUNT_DIGITS = 4
   DIFFICULTIES = {
-                easy: {attempts: 2, hints: 2, difficulty: 'easy'},
-                hard: {attempts: 10, hints: 2, difficulty: 'hard'},
-                expert: {attempts: 5, hints: 1, difficulty: 'expert'}}.freeze
+    easy: { attempts: 2, hints: 2, difficulty: 'easy' },
+    hard: { attempts: 10, hints: 2, difficulty: 'hard' },
+    expert: { attempts: 5, hints: 1, difficulty: 'expert' }
+  }.freeze
   RANGE_OF_DIGITS = { first: 0, last: 6 }.freeze
   GUESS_CODE = { hint: 'hint', leave: 'exit' }.freeze
 
@@ -15,14 +16,14 @@ class Game
   def initialize
     @hints_used = 0
     @attempts_used = 0
-    @secret_code = [1,2,3,4]
-    # AMOUNT_DIGITS.times { @secret_code << rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
+    @secret_code = []
+    AMOUNT_DIGITS.times { @secret_code << rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
     @arr_for_hints = @secret_code.map(&:dup).shuffle
   end
 
   def game_options(user_difficulty:, player:)
     @name = player.name
-    assign_difficulty( DIFFICULTIES[user_difficulty.downcase.to_sym] )
+    assign_difficulty(DIFFICULTIES[user_difficulty.downcase.to_sym])
   end
 
   def try(guess_input)
@@ -52,7 +53,8 @@ class Game
 
   def validation(entity, length)
     return false if validate_presence?(entity)
-    return false if !validate_length(entity, length)
+    return false unless validate_length(entity, length)
+
     validate_match(entity)
   end
 
@@ -77,19 +79,18 @@ class Game
 
     pin = []
     sec_code = @secret_code.map(&:dup)
-    guess_code = user_code.map(&:dup)
-
     a = user_code.zip(@secret_code)
     a.map do |user_digit, secret_digit|
-      if user_digit == secret_digit
-        pin << '+'
-        guess_code.delete_at(guess_code.index(user_digit))
-        sec_code.delete_at(sec_code.index(secret_digit))
-      end
+      next unless user_digit == secret_digit
+
+      pin << '+'
+      user_code.delete_at(user_code.index(user_digit))
+      sec_code.delete_at(sec_code.index(secret_digit))
     end
     sec_code.each do |x|
-      if guess_code.include? x
+      if user_code.include? x
         pin << '-'
+        user_code.delete_at(user_code.index(x))
       end
     end
     pin.sort

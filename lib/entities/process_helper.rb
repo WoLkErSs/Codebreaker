@@ -2,17 +2,17 @@ class ProcessHelper
   include Respondent
 
   AVAILABLE_ACTIONS = {
-                        start: 'start',
-                        rules: 'rules',
-                        stats: 'stats',
-                        leave: 'exit',
-                        save_player: 'y'}.freeze
-  AVAILABLE_DIFFICULTY = [
-                          'easy',
-                          'hard',
-                          'expert'].freeze
-
-  attr_reader :setup_player, :setup_difficulty
+    start: 'start',
+    rules: 'rules',
+    stats: 'stats',
+    leave: 'exit',
+    save_player: 'y'
+  }.freeze
+  AVAILABLE_DIFFICULTY = %w[
+    easy
+    hard
+    expert
+  ].freeze
 
   def initialize(player: Player.new)
     @player = player
@@ -23,7 +23,7 @@ class ProcessHelper
     loop do
       @player.assign_name(input.capitalize)
       show(@player.errors_store) if @player.errors_store.any?
-      return @player if !@player.name.nil?
+      return @player unless @player.name.nil?
     end
   end
 

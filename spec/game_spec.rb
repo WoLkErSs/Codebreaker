@@ -72,15 +72,36 @@ RSpec.describe Game do
       it do
         allow(subject.instance_variable_set(:@attempts_left, 2))
         allow(subject.instance_variable_set(:@attempts_used, 2))
+        subject.instance_variable_set(:@secret_code, [1, 2, 3, 4])
         expect {subject.try(user_code)}.to change{subject.attempts_left}.by(-1)
         expect {subject.try(user_code)}.to change{subject.attempts_used}.by(1)
         expect(subject.instance_variable_get(:@winner)).to be(true)
         subject.try(user_code)
       end
 
-      it do
-        expect(subject.send(:verdict, just_input)).to eq(['-'])
-        expect(subject.send(:verdict, just_input2)).to eq(['+'])
+      context 'check validate work of .verdict' do
+        [
+          [[6, 5, 4, 1], [6, 5, 4, 1], true],
+          [[1, 2, 3, 4], [5, 6, 1, 2], ['-','-']],
+          [[5, 5, 6, 6], [5, 6, 0, 0], ['+','-']],
+          [[6, 2, 3, 5], [2, 3, 6, 5], ['+','-','-','-']],
+          [[1, 2, 3, 4], [4, 3, 2, 1], ['-','-','-','-']],
+          [[1, 2, 3, 4], [1, 2, 3, 5], ['+','+','+']],
+          [[1, 2, 3, 4], [6, 2, 5, 4], ['+','+']],
+          [[1, 2, 3, 4], [5, 6, 3, 5], ['+']],
+          [[1, 2, 3, 4], [4, 3, 2, 6], ['-','-','-']],
+          [[1, 2, 3, 4], [3, 5, 2, 5], ['-','-']],
+          [[1, 2, 3, 4], [2, 5, 5, 2], ['-']],
+          [[1, 2, 3, 4], [4, 2, 5, 5], ['+','-']],
+          [[1, 2, 3, 4], [1, 5, 2, 4], ['+','+','-']],
+          [[1, 2, 3, 4], [5, 4, 3, 1], ['+','-','-']],
+          [[1, 2, 3, 4], [6, 6, 6, 6], []]
+        ].each do |item|
+          it "return #{item[2]} if code is - #{item[0]}, guess_code is #{item[1]}" do
+            subject.instance_variable_set(:@secret_code, item[0])
+            expect(subject.send(:verdict, item[1])).to eq item[2]
+          end
+        end
       end
 
       it do

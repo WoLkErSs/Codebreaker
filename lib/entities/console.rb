@@ -5,15 +5,17 @@ class Console
   include Respondent
 
   AVAILABLE_ACTIONS = {
-                        start: 'start',
-                        rules: 'rules',
-                        stats: 'stats',
-                        leave: 'exit',
-                        save_player: 'y'}.freeze
-  AVAILABLE_DIFFICULTY = [
-                          'easy',
-                          'hard',
-                          'expert'].freeze
+    start: 'start',
+    rules: 'rules',
+    stats: 'stats',
+    leave: 'exit',
+    save_player: 'y'
+  }.freeze
+  AVAILABLE_DIFFICULTY = %w[
+    easy
+    hard
+    expert
+  ].freeze
 
   def initialize(process_helper: ProcessHelper.new, set_game: Game.new, statistics: Statistics.new)
     @process_helpers = process_helper
