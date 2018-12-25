@@ -227,7 +227,6 @@ RSpec.describe Console do
     end
     context 'when with_not_empty_db' do
       it do
-        # statistics_double.stub(:winners) {[]}
         allow(subject).to receive(:load_db)
         expect(subject.instance_variable_get(:@stats)).to receive(:winners)
         expect(subject).to receive(:show)
