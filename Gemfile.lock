@@ -73,6 +73,7 @@ DEPENDENCIES
   rspec (~> 3.8)
   rubocop (~> 0.60.0)
   rubocop-rspec
+  rugged
   simplecov
   simplecov-lcov
   terminal-table
