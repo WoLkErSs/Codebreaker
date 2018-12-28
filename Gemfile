@@ -5,7 +5,6 @@ source "https://rubygems.org"
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 gem 'i18n'
-gem 'rugged'
 group :development do
   gem 'rubocop', '~> 0.60.0', require: false
   gem 'rubocop-rspec'
