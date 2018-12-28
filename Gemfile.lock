@@ -73,11 +73,10 @@ DEPENDENCIES
   rspec (~> 3.8)
   rubocop (~> 0.60.0)
   rubocop-rspec
-  rugged
   simplecov
   simplecov-lcov
   terminal-table
   undercover
 
 BUNDLED WITH
-   1.17.1
+   1.17.2
