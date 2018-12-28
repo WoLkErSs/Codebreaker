@@ -15,7 +15,6 @@ group :test do
   gem "rspec", "~> 3.8"
   gem 'simplecov', require: false, group: :test
   gem 'simplecov-lcov'
-  gem 'undercover'
 end
 
 group :development, :test do
