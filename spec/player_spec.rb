@@ -1,5 +1,4 @@
 RSpec.describe Player do
-  let(:)
   let(:correct_input) {'I' * max_length}
   let(:less_then_correct_input) { 'I' * (min_length - 1) }
   let(:greater_then_correct_input) { 'I'*(max_length + 1) }
