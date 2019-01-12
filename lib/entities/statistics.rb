@@ -29,7 +29,14 @@ class Statistics
   end
 
   def table(rows)
-    title = ['Name', 'Difficulty', 'Attempts Total', 'Attempts Used', 'Hints Total', 'Hints Used']
-    Terminal::Table.new title: 'Codebreaker stats', headings: title, rows: rows
+    title = [
+      I18n.t('table_fields.name'),
+      I18n.t('table_fields.difficulty'),
+      I18n.t('table_fields.attempts_total'),
+      I18n.t('table_fields.attempts_used'),
+      I18n.t('table_fields.hints_total'),
+      I18n.t('table_fields.hints_used')
+    ]
+    Terminal::Table.new title: I18n.t('table_heder'), headings: title, rows: rows
   end
 end

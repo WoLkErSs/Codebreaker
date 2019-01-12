@@ -1,4 +1,4 @@
-module Rules
+class Rules
   FOLDER_PATH = './'.freeze
   FILE_PATH = 'rules'.freeze
   FORMAT_PATH = '.txt'.freeze

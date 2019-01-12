@@ -1,5 +1,5 @@
 module Validation
-  def validate_length_in_range(word, min, max)
+  def validate_length_in_range?(word, min, max)
     word.length.between?(min, max)
   end
 

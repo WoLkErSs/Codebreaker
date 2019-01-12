@@ -1,6 +1,4 @@
 class ProcessHelper
-  include Respondent
-
   AVAILABLE_ACTIONS = {
     start: 'start',
     rules: 'rules',
@@ -8,30 +6,27 @@ class ProcessHelper
     leave: 'exit',
     save_player: 'y'
   }.freeze
-  AVAILABLE_DIFFICULTY = %w[
-    easy
-    hard
-    expert
-  ].freeze
 
-  def initialize(player: Player.new)
-    @player = player
+  def initialize
+    @player = Player.new
+    @output = Respondent.new
+    @game = Game.new
   end
 
   def setup_player
-    ask_name
+    @output.show_message(:ask_name)
     loop do
       @player.assign_name(input.capitalize)
-      show(@player.errors_store) if @player.errors_store.any?
-      return @player unless @player.name.nil?
+      next @output.show(@player.errors_store) unless @player.valid?
+      return @player if @player.name
     end
   end
 
   def setup_difficulty
     loop do
-      select_difficulty
+      @output.show_message(:select_difficulty)
       user_difficulty_input = input
-      return user_difficulty_input if AVAILABLE_DIFFICULTY.include?(user_difficulty_input)
+      return user_difficulty_input if @game.valid_difficulties?(user_difficulty_input)
     end
   end
 
@@ -44,7 +39,7 @@ class ProcessHelper
   end
 
   def leave
-    leave_output
+    @output.show_message(:leave)
     exit
   end
 end

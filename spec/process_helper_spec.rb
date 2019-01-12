@@ -1,56 +1,59 @@
 RSpec.describe ProcessHelper do
-  WRONG_LEVEL_DIF = 'dedmoroz'
   let(:player_double) {double('Player', assign_name: 'Gilly')}
-  subject { described_class.new(player: player_double) }
+  let(:output_double) {double('Respondent')}
+
   describe '#new' do
     context 'when screate subject' do
-      it {expect(subject.instance_variable_get(:@player)).to eq(player_double)}
+      it {expect(subject.instance_variable_get(:@player)).to be_an_instance_of(Player)}
+      it {expect(subject.instance_variable_get(:@output)).to be_an_instance_of(Respondent)}
+      it {expect(subject.instance_variable_get(:@game)).to be_an_instance_of(Game)}
     end
   end
 
   describe '#setup_player' do
-    context 'set player name' do
-      it 'when inputed right name' do
-        player_double.stub(:errors_store) {[]}
-        player_double.stub(:name) {'Gilly'}
-        allow(subject).to receive_message_chain(:gets, :chomp).and_return('Gilly')
-        expect(subject).to receive(:puts).with(I18n.t(:ask_name))
-        expect(subject.setup_player).to eq(player_double)
-      end
+    let(:name) {'Gilly'}
+    before do
+      allow(output_double).to receive(:show_message)
+      allow(subject.instance_variable_set(:@output, output_double))
+      allow(subject.instance_variable_set(:@player, player_double))
+      allow(player_double).to receive(:errors_store)
+      allow(player_double).to receive(:assign_name)
+      player_double.stub(:name) {name}
 
-      it 'when inputed wrong name' do
-        player_double.stub(:errors_store) {[I18n.t(:when_wrong_name)]}
-        player_double.stub(:name) {'Gilly'}
-        allow(subject).to receive_message_chain(:gets, :chomp).and_return('Gilly')
-        expect(subject).to receive(:puts).with([I18n.t(:when_wrong_name)])
-        expect(subject).to receive(:puts).with(I18n.t(:ask_name))
-        expect(subject.setup_player).to eq(player_double)
-      end
+    end
+    it 'when inputed right name' do
+      allow(player_double).to receive(:valid?).and_return(true)
+      allow(subject).to receive_message_chain(:gets, :chomp).and_return(name)
+      expect(subject.setup_player).to be(player_double)
+    end
+
+    it 'when inputed invalid name' do
+      allow(player_double).to receive(:valid?).and_return(false, true)
+      allow(output_double).to receive(:show)
+      allow(subject).to receive_message_chain(:gets, :chomp).and_return('f', name)
+      expect(subject.instance_variable_get(:@output)).to receive(:show)
+      subject.setup_player
     end
   end
 
   describe '#setup_difficulty' do
-    context 'when set level difficulty' do
-      it do
-        allow(subject).to receive_message_chain(:gets, :chomp).and_return(WRONG_LEVEL_DIF,'easy')
-        expect(subject).to receive(:puts).with(I18n.t(:select_difficulty)).exactly(3).times
-        expect(subject.setup_difficulty).to eq('easy')
-        subject.setup_difficulty
-      end
+    let(:invalid_difficulty) {'ysae'}
+    let(:valid_difficulty) {'easy'}
+
+    it 'when input difficulty' do
+      allow(output_double).to receive(:show_message)
+      allow(subject.instance_variable_set(:@output, output_double))
+      allow(subject).to receive_message_chain(:gets, :chomp, :downcase).and_return(invalid_difficulty, valid_difficulty)
+      expect(subject.instance_variable_get(:@output)).to receive(:show_message)
+      expect(subject.setup_difficulty).to eq(valid_difficulty)
+      subject.setup_difficulty
     end
-  end
 
-  describe '.input' do
-    context 'when input value' do
-      it 'while play game' do
-        allow(subject).to receive_message_chain(:gets, :chomp).and_return('snegurka')
-        expect(subject.send(:input)).to eq('snegurka')
-      end
-
-      it 'when want to exit' do
-        allow(subject).to receive_message_chain(:gets, :chomp).and_return('exit')
-        expect(subject.send(:input)).to eq(exit)
-      end
+    it 'when want to exit' do
+      allow(output_double).to receive(:show_message)
+      allow(subject.instance_variable_set(:@output, output_double))
+      allow(subject).to receive_message_chain(:gets, :chomp).and_return('exit')
+      expect(subject.setup_difficulty).to raise_error(SystemExit)
     end
   end
 end

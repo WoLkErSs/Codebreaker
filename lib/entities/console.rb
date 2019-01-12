@@ -1,100 +1,114 @@
 class Console
   include Database
-  # include Statistics
-  include Rules
-  include Respondent
-
-  AVAILABLE_ACTIONS = {
+  USER_ACTIONS = {
     start: 'start',
     rules: 'rules',
     stats: 'stats',
-    leave: 'exit',
+    leave: 'exit'
+  }.freeze
+  ACTIONS_FOR_DATABASE = {
     save_player: 'y'
   }.freeze
-  AVAILABLE_DIFFICULTY = %w[
-    easy
-    hard
-    expert
-  ].freeze
-
-  def initialize(process_helper: ProcessHelper.new, set_game: Game.new, statistics: Statistics.new)
-    @process_helpers = process_helper
-    @game = set_game
-    @stats = statistics
-  end
 
   def choose_action
-    greeting
+    instance_respondent
+    instance_rules
+    @instance_respondent.show_message(:greeting)
     loop do
-      for_choose_action
+      @instance_respondent.show_message(:choose_action)
       case input
-      when AVAILABLE_ACTIONS[:start] then return process
-      when AVAILABLE_ACTIONS[:rules] then show_rules
-      when AVAILABLE_ACTIONS[:stats] then statistics
-      else wrong_input_action
+      when USER_ACTIONS[:start] then return process
+      when USER_ACTIONS[:rules] then @instance_rules.show_rules
+      when USER_ACTIONS[:stats] then statistics
+      else @instance_respondent.show_message(:wrong_input_action)
       end
     end
   end
 
   private
 
+  def instance_process_helper
+    @instance_process_helper ||= ProcessHelper.new
+  end
+
+  def instance_rules
+    @instance_rules ||= Rules.new
+  end
+
+  def instance_game
+    @instance_game ||= Game.new
+  end
+
+  def instance_respondent
+    @instance_respondent ||= Respondent.new
+  end
+
   def process
-    @player = @process_helpers.setup_player
-    @difficulty = @process_helpers.setup_difficulty
-    set_game_options(@difficulty, @player)
+    instance_game
+    instance_process_helper
+    @player = @instance_process_helper.setup_player
+    @difficulty = @instance_process_helper.setup_difficulty
+    set_game_options
     play_game
   end
 
-  def set_game_options(difficulty, player_object)
-    @game.game_options(user_difficulty: difficulty, player: player_object)
+  def set_game_options
+    @instance_game.game_options(user_difficulty: @difficulty, player: @player)
   end
 
   def play_game
-    in_process
-    loop do
-      what_guessed = @game.try(input)
-      show(what_guessed.join('')) if what_guessed.is_a? Array
-      show(@game.errors) if @game.errors.any?
-      break unless validate_game_state
+    @instance_respondent.show_message(:in_process)
+    while game_state_valid?
+      what_guessed = @instance_game.attempt(input)
+      @instance_respondent.show(what_guessed) if what_guessed
+      @instance_respondent.show(@instance_game.errors) unless @instance_game.errors.empty?
     end
     result_decision
   end
 
-  def validate_game_state
-    @game.attempts_left.positive? && @game.winner.nil?
+  def game_state_valid?
+    @instance_game.attempts_left.positive? && !@instance_game.winner
   end
 
   def result_decision
-    @game.winner ? winner(@game) : loser
+    @instance_game.winner ? win : lose
   end
 
-  def loser
-    lose
+  def lose
+    @instance_respondent.show_message(:when_lose)
     new_process
   end
 
-  def winner(player)
-    win
-    save_to_db(player) if input == AVAILABLE_ACTIONS[:save_player]
+  def win
+    @instance_respondent.show_message(:when_win)
+    save_to_db(@instance_game) if input == ACTIONS_FOR_DATABASE[:save_player]
     new_process
   end
 
   def new_process
-    Console.new.choose_action
+    choose_action
   end
 
   def input
     input = gets.chomp.downcase
-    leave if input == AVAILABLE_ACTIONS[:leave]
-    input
+    input == USER_ACTIONS[:leave] ? leave : input
   end
 
   def leave
-    leave_output
+    @instance_respondent.show_message(:leave)
     exit
   end
 
   def statistics
-    show(@stats.winners(load_db))
+    instance_statistic
+    @instance_respondent.show(winners_load)
+  end
+
+  def winners_load
+    @instance_statistic.winners(load_db)
+  end
+
+  def instance_statistic
+    @instance_statistic ||= Statistics.new
   end
 end

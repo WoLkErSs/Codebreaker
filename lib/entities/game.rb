@@ -3,11 +3,11 @@ class Game
 
   AMOUNT_DIGITS = 4
   DIFFICULTIES = {
-    easy: { attempts: 2, hints: 2, difficulty: 'easy' },
+    easy: { attempts: 15, hints: 2, difficulty: 'easy' },
     hard: { attempts: 10, hints: 2, difficulty: 'hard' },
     expert: { attempts: 5, hints: 1, difficulty: 'expert' }
   }.freeze
-  RANGE_OF_DIGITS = { first: 0, last: 6 }.freeze
+  RANGE_OF_DIGITS = 0..4.freeze
   GUESS_CODE = { hint: 'hint', leave: 'exit' }.freeze
 
   attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
@@ -16,9 +16,6 @@ class Game
   def initialize
     @hints_used = 0
     @attempts_used = 0
-    @secret_code = []
-    AMOUNT_DIGITS.times { @secret_code << rand(RANGE_OF_DIGITS[:first]..RANGE_OF_DIGITS[:last]) }
-    @arr_for_hints = @secret_code.map(&:dup).shuffle
   end
 
   def game_options(user_difficulty:, player:)
@@ -26,73 +23,94 @@ class Game
     assign_difficulty(DIFFICULTIES[user_difficulty.downcase.to_sym])
   end
 
-  def try(guess_input)
-    return use_hint if guess_input == GUESS_CODE[:hint]
+  def attempt(input)
+    return use_hint if hint?(input)
 
-    verdict(guess_input.split('').map(&:to_i)) if check_input(guess_input)
+    converted = convert_to_array(input)
+    guessing(converted) if check_input(input)
+  end
+
+  def valid_difficulties?(input)
+    DIFFICULTIES.key?(input.to_sym)
   end
 
   private
 
-  def assign_difficulty(dif_variables)
-    @attempts_total = dif_variables[:attempts]
-    @hints_total = dif_variables[:hints]
+  def hint?(input)
+    input == GUESS_CODE[:hint]
+  end
+
+  def convert_to_array(input)
+    input.split('').map(&:to_i)
+  end
+
+  def assign_difficulty(difficulty_of_variables)
+    @attempts_total = difficulty_of_variables[:attempts]
+    @hints_total = difficulty_of_variables[:hints]
     @attempts_left = @attempts_total
-    @difficulty = dif_variables[:difficulty]
+    @difficulty = difficulty_of_variables[:difficulty]
   end
 
   def check_input(entity)
     @errors = []
-    if validation(entity, AMOUNT_DIGITS)
-      to_count_try
-    else
-      @errors << I18n.t(:when_incorrect_guess)
-      false
-    end
+    return count_attempt if validation(entity, AMOUNT_DIGITS)
+
+    @errors << I18n.t(:when_incorrect_guess) && return
   end
 
   def validation(entity, length)
-    return false if validate_presence?(entity)
-    return false unless validate_length(entity, length)
+    return if validate_presence?(entity)
+    return unless validate_length(entity, length)
+    return if entity == GUESS_CODE[:hint]
 
     validate_match(entity)
   end
 
-  def to_count_try
+  def count_attempt
     @attempts_left -= 1
     @attempts_used += 1
   end
 
   def use_hint
-    if !@hints_total.positive?
-      @errors << I18n.t(:when_no_hints)
-      false
-    else
-      @hints_total -= 1
-      @hints_used += 1
-      [@arr_for_hints.pop]
-    end
+    @errors = []
+    @errors << I18n.t(:when_no_hints) && return unless @hints_total.positive?
+    count_tip
   end
 
-  def verdict(user_code)
-    return @winner = true if user_code == @secret_code
+  def count_tip
+    @hints_total -= 1
+    @hints_used += 1
+    arr_for_hints = secret_code.clone.shuffle
+    arr_for_hints.pop
+  end
+
+  def compare_with_right_code(user_code)
+    user_code == secret_code
+  end
+
+  def secret_code
+    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }
+  end
+
+  def guessing(user_code)
+    @winner = true && return if compare_with_right_code(user_code)
 
     pin = []
-    sec_code = @secret_code.map(&:dup)
-    a = user_code.zip(@secret_code)
+    clone_secret_code = secret_code.clone
+    a = user_code.zip(secret_code)
     a.map do |user_digit, secret_digit|
       next unless user_digit == secret_digit
 
       pin << '+'
       user_code.delete_at(user_code.index(user_digit))
-      sec_code.delete_at(sec_code.index(secret_digit))
+      clone_secret_code.delete_at(clone_secret_code.index(secret_digit))
     end
-    sec_code.each do |x|
+    clone_secret_code.each do |x|
       if user_code.include? x
         pin << '-'
         user_code.delete_at(user_code.index(x))
       end
     end
-    pin.sort
+    pin.sort.join('')
   end
 end

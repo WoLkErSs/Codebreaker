@@ -1,32 +1,29 @@
 RSpec.describe Player do
-  let(:player) { described_class.new }
-  let(:max_input) {'I'*20}
-  let(:less_t_min_input) {'I'*2}
-  let(:more_t_max_input) {'I'*21}
+  let(:correct_input) {'I'*20}
+  let(:less_then_correct_input) {'I'*2}
+  let(:greater_then_correct_input) {'I'*21}
+  let(:min_length) {3}
+  let(:max_length) {20}
 
   describe '#assign_name(input)' do
-    context 'with right pass name' do
-      it do
-        allow(player.send(:assign_name, max_input))
-        expect(player.send(:validate_name, max_input)).to eq(true)
-        expect(player.instance_variable_get(:@errors_store)).to eq([])
-      end
+    it 'with right pass name' do
+      expect(subject.assign_name(correct_input)).to eq(correct_input)
     end
 
-    context 'with wrong pass name' do
-      it do
-        allow(player.send(:assign_name, less_t_min_input))
-        expect(player.instance_variable_get(:@errors_store)).to eq([I18n.t(:when_wrong_name) ])
-        expect(player.send(:validate_name, less_t_min_input)).to eq(false)
-      end
+    it 'with invali name' do
+      expect(subject.assign_name(:greater_then_correct_input)).to eq([I18n.t(:when_wrong_name, min: min_length, max: max_length)])
+    end
+  end
+
+  describe '#valid?' do
+    it 'when true' do
+      allow(subject.instance_variable_set(:@errors_store, []))
+      expect(subject.valid?).to eq(true)
     end
 
-    context 'with wrong pass name' do
-      it do
-        allow(player.send(:assign_name, more_t_max_input))
-        expect(player.instance_variable_get(:@errors_store)).to eq([I18n.t(:when_wrong_name) ])
-        expect(player.send(:validate_name, more_t_max_input)).to eq(false)
-      end
+    it 'when false' do
+      allow(subject.instance_variable_set(:@errors_store, [I18n.t(:when_wrong_name, min: min_length, max: max_length)]))
+      expect(subject.valid?).to eq(false)
     end
   end
 end
