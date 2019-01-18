@@ -3,7 +3,7 @@ class Game
 
   AMOUNT_DIGITS = 4
   DIFFICULTIES = {
-    easy: { attempts: 15, hints: 2, difficulty: 'easy' },
+    easy: { attempts: 15, hints: 4, difficulty: 'easy' },
     hard: { attempts: 10, hints: 2, difficulty: 'hard' },
     expert: { attempts: 5, hints: 1, difficulty: 'expert' }
   }.freeze
@@ -13,12 +13,12 @@ class Game
   attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
   attr_accessor :errors
 
-  def initialize
+  def game_options(user_difficulty:, player:)
+    @hints_array = nil
+    @got_hints = ''
     @hints_used = 0
     @attempts_used = 0
-  end
-
-  def game_options(user_difficulty:, player:)
+    @winner = nil
     @name = player.name
     assign_difficulty(DIFFICULTIES[user_difficulty.downcase.to_sym])
   end
@@ -80,8 +80,10 @@ class Game
   def count_tip
     @hints_total -= 1
     @hints_used += 1
-    arr_for_hints = secret_code.clone.shuffle
-    arr_for_hints.pop
+    @hints_array ||= secret_code.clone.shuffle
+    hint = @hints_array.pop.to_s
+    @got_hints += hint
+    hint
   end
 
   def compare_with_right_code(user_code)
@@ -89,11 +91,12 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }
+    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    convert_to_array(@secret_code)
   end
 
   def guessing(user_code)
-    @winner = true && return if compare_with_right_code(user_code)
+    (@winner = true) && return if compare_with_right_code(user_code)
 
     pin = []
     clone_secret_code = secret_code.clone

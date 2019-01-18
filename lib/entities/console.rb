@@ -11,7 +11,6 @@ class Console
   }.freeze
 
   def choose_action
-    respondent.show_message(:greeting)
     loop do
       respondent.show_message(:choose_action)
       case input
