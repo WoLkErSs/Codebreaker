@@ -10,10 +10,6 @@ RSpec.describe Console do
     context 'when call process' do
       it do
         allow(subject).to receive(:input).and_return('start')
-        allow(respondent_double).to receive(:show_message).and_return(I18n.t(:choose_action))
-        allow(subject.instance_variable_set(:@instance_respondent, respondent_double))
-        expect(subject).to receive(:instance_respondent)
-        expect(subject.instance_variable_get(:@instance_respondent)).to receive(:show_message).and_return(I18n.t(:choose_action))
         expect(subject).to receive(:process)
         subject.choose_action
       end
@@ -22,9 +18,9 @@ RSpec.describe Console do
     context 'when call rules' do
       it do
         allow(subject).to receive(:input).and_return('rules', 'start')
-        allow(subject.instance_variable_set(:@instance_rules, rules_double))
+        allow(subject).to receive(:rules).and_return(rules_double)
         allow(subject).to receive(:process)
-        expect(subject.instance_variable_get(:@instance_rules)).to receive(:show_rules)
+        expect(rules_double).to receive(:show_rules)
         subject.choose_action
       end
     end
@@ -41,11 +37,11 @@ RSpec.describe Console do
     context 'with invalid action' do
       it do
         allow(subject).to receive(:input).and_return('staawdawdts', 'start')
-        allow(subject).to receive(:instance_respondent)
+        allow(subject).to receive(:respondent)
         allow(subject).to receive(:process)
-        allow(subject.instance_variable_get(:@instance_respondent)).to receive(:show_message).with(:choose_action)
-        allow(subject.instance_variable_get(:@instance_respondent)).to receive(:show_message).with(:greeting)
-        expect(subject.instance_variable_get(:@instance_respondent)).to receive(:show_message).with(:wrong_input_action)
+        allow(subject.instance_variable_get(:@respondent)).to receive(:show_message).with(:choose_action)
+        allow(subject.instance_variable_get(:@respondent)).to receive(:show_message).with(:greeting)
+        expect(subject.instance_variable_get(:@respondent)).to receive(:show_message).with(:wrong_input_action)
         subject.choose_action
       end
     end
@@ -58,7 +54,7 @@ RSpec.describe Console do
 
     it 'when leave app' do
       allow(respondent_double).to receive(:show_message)
-      allow(subject.instance_variable_set(:@instance_respondent, respondent_double))
+      allow(subject.instance_variable_set(:@respondent, respondent_double))
       allow(subject).to receive_message_chain(:gets, :chomp, :downcase).and_return('exit')
       expect(subject).to receive(:exit)
       subject.send(:input)
@@ -66,14 +62,15 @@ RSpec.describe Console do
 
     it 'when invalid input during play' do
       allow(subject).to receive(:input).and_return('start', '')
-      allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
+      allow(subject).to receive(:process_helper).and_return(process_helper_double)
       allow(subject).to receive(:game_state_valid?).and_return(true, false)
       allow(game_double).to receive(:attempt).and_return(nil)
       allow(game_double).to receive(:errors).and_return([I18n.t(:when_incorrect_guess)])
-      allow(subject.instance_variable_set(:@instance_game, game_double))
+      # allow(subject.instance_variable_set(:@instance_game, game_double))
+      allow(subject).to receive(:game).and_return(game_double)
       allow(process_helper_double).to receive(:setup_player)
       allow(process_helper_double).to receive(:setup_difficulty)
-      expect(subject).to receive(:instance_game)
+      # expect(subject).to receive(:game)
       expect(subject).to receive(:set_game_options)
       expect(subject).to receive(:result_decision)
       subject.choose_action
@@ -82,31 +79,31 @@ RSpec.describe Console do
     it 'when valid but wrong code passed' do
       allow(subject).to receive(:input).and_return('start', '1233')
       allow(subject).to receive(:game_state_valid?).and_return(true, false)
-      allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
+      allow(subject).to receive(:process_helper).and_return(process_helper_double)
       allow(process_helper_double).to receive(:setup_player)
       allow(process_helper_double).to receive(:setup_difficulty)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
+      allow(subject).to receive(:game).and_return(game_double)
       allow(game_double).to receive(:game_options)
       allow(game_double).to receive(:errors).and_return([])
       allow(game_double).to receive(:attempt).and_return(:some_guessed)
       allow(respondent_double).to receive(:show_message)
-      allow(subject.instance_variable_set(:@instance_respondent, respondent_double))
-      expect(subject.instance_variable_get(:@instance_respondent)).to receive(:show).with(:some_guessed)
+      allow(subject.instance_variable_set(:@respondent, respondent_double))
+      expect(subject.instance_variable_get(:@respondent)).to receive(:show).with(:some_guessed)
       expect(subject).to receive(:result_decision)
       subject.choose_action
     end
 
     it 'when attempts have had been spent - lose' do
       allow(subject).to receive(:input).and_return('start')
-      allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
+      allow(subject).to receive(:process_helper).and_return(process_helper_double)
       allow(process_helper_double).to receive(:setup_player)
       allow(process_helper_double).to receive(:setup_difficulty)
       allow(subject).to receive(:set_game_options)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
+      allow(subject).to receive(:game).and_return(game_double)
       allow(game_double).to receive(:winner).and_return(nil)
       allow(game_double).to receive(:attempts_left).and_return(has_not_attempt)
       allow(respondent_double).to receive(:show_message)
-      allow(subject.instance_variable_set(:@instance_respondent, respondent_double))
+      allow(subject.instance_variable_set(:@respondent, respondent_double))
       expect(subject).to receive(:new_process)
       subject.choose_action
     end
@@ -114,15 +111,16 @@ RSpec.describe Console do
     it 'when guessed code - win and agree to save result' do
       allow(subject).to receive(:input).and_return('start' , '1234', 'y')
       allow(subject).to receive(:game_state_valid?).and_return(true, false)
-      allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
+      allow(subject).to receive(:process_helper).and_return(process_helper_double)
+      # allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
       allow(process_helper_double).to receive(:setup_player)
       allow(process_helper_double).to receive(:setup_difficulty)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
+      allow(subject).to receive(:game).and_return(game_double)
+      # allow(subject.instance_variable_set(:@instance_game, game_double))
       allow(game_double).to receive(:attempt).and_return(:guessed_code)
       allow(game_double).to receive(:errors).and_return([])
       allow(subject).to receive(:set_game_options)
       allow(game_double).to receive(:winner).and_return(true)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
       expect(subject).to receive(:save_to_db)
       expect(subject).to receive(:new_process)
       subject.choose_action
@@ -131,15 +129,16 @@ RSpec.describe Console do
     it 'when guessed code - win and do not save result' do
       allow(subject).to receive(:input).and_return('start' , '1234', 'y')
       allow(subject).to receive(:game_state_valid?).and_return(true, false)
-      allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
+      allow(subject).to receive(:process_helper).and_return(process_helper_double)
+      # allow(subject.instance_variable_set(:@instance_process_helper, process_helper_double))
       allow(process_helper_double).to receive(:setup_player)
       allow(process_helper_double).to receive(:setup_difficulty)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
+      allow(subject).to receive(:game).and_return(game_double)
+      # allow(subject.instance_variable_set(:@instance_game, game_double))
       allow(game_double).to receive(:attempt).and_return(:guessed_code)
       allow(game_double).to receive(:errors).and_return([])
       allow(subject).to receive(:set_game_options)
       allow(game_double).to receive(:winner).and_return(true)
-      allow(subject.instance_variable_set(:@instance_game, game_double))
       expect(subject).to receive(:new_process)
       subject.choose_action
     end
@@ -149,10 +148,12 @@ RSpec.describe Console do
       allow(respondent_double).to receive(:show_message)
       allow(respondent_double).to receive(:show)
       allow(statistics_double).to receive(:winners)
-      allow(subject.instance_variable_set(:@instance_statistic, statistics_double))
-      allow(subject.instance_variable_set(:@instance_respondent, respondent_double))
+      allow(subject).to receive(:statistic).and_return(statistics_double)
+      # allow(subject.instance_variable_set(:@instance_statistic, statistics_double))
+      allow(subject).to receive(:respondent).and_return(respondent_double)
       expect(subject).to receive(:process)
-      expect(subject.instance_variable_get(:@instance_respondent)).to receive(:show)
+      # expect(respondent).to receive(:show)
+      # expect(subject).to receive(:respondent).to receive(:show)
       subject.choose_action
     end
   end

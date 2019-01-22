@@ -2,6 +2,7 @@ class Game
   include Validation
 
   AMOUNT_DIGITS = 4
+  RANGE_DIGITS = 1..6
   DIFFICULTIES = {
     easy: { attempts: 15, hints: 2, difficulty: 'easy' },
     hard: { attempts: 10, hints: 2, difficulty: 'hard' },
@@ -13,21 +14,27 @@ class Game
   attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
   attr_accessor :errors
 
-  def initialize
+  def game_options(user_difficulty:, player:)
+    @got_hints = ''
     @hints_used = 0
     @attempts_used = 0
-  end
-
-  def game_options(user_difficulty:, player:)
+    @winner = nil
     @name = player.name
     assign_difficulty(DIFFICULTIES[user_difficulty.downcase.to_sym])
   end
 
   def attempt(input)
+    @errors = []
     return use_hint if hint?(input)
 
     converted = convert_to_array(input)
-    guessing(converted) if check_input(input)
+    return guessing(converted) if valid_input?(input, AMOUNT_DIGITS)
+    miss_input && return
+  end
+
+  def miss_input
+    @errors = []
+    @errors << I18n.t(:when_incorrect_guess) && return
   end
 
   def valid_difficulties?(input)
@@ -41,7 +48,7 @@ class Game
   end
 
   def convert_to_array(input)
-    input.split('').map(&:to_i)
+    input.chars.map(&:to_i)
   end
 
   def assign_difficulty(difficulty_of_variables)
@@ -51,19 +58,12 @@ class Game
     @difficulty = difficulty_of_variables[:difficulty]
   end
 
-  def check_input(entity)
-    @errors = []
-    return count_attempt if validation(entity, AMOUNT_DIGITS)
-
-    @errors << I18n.t(:when_incorrect_guess) && return
-  end
-
-  def validation(entity, length)
-    return if validate_presence?(entity)
+  def valid_input?(entity, length)
+    return unless validate_presence?(entity)
     return unless validate_length(entity, length)
-    return if entity == GUESS_CODE[:hint]
+    return unless validate_match(entity)
 
-    validate_match(entity)
+    valid_digits?(entity, RANGE_DIGITS)
   end
 
   def count_attempt
@@ -80,8 +80,10 @@ class Game
   def count_tip
     @hints_total -= 1
     @hints_used += 1
-    arr_for_hints = secret_code.clone.shuffle
-    arr_for_hints.pop
+    @hints_array ||= secret_code.clone.shuffle
+    hint = @hints_array.pop.to_s
+    @got_hints += hint
+    hint
   end
 
   def compare_with_right_code(user_code)
@@ -89,16 +91,18 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }
+    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    convert_to_array(@secret_code)
   end
 
   def guessing(user_code)
-    @winner = true && return if compare_with_right_code(user_code)
+    count_attempt
+    (@winner = true) && return if compare_with_right_code(user_code)
 
     pin = []
     clone_secret_code = secret_code.clone
-    a = user_code.zip(secret_code)
-    a.map do |user_digit, secret_digit|
+    complex_code = user_code.zip(secret_code)
+    complex_code.map do |user_digit, secret_digit|
       next unless user_digit == secret_digit
 
       pin << '+'
