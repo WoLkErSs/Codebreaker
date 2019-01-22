@@ -4,7 +4,7 @@ class Game
   AMOUNT_DIGITS = 4
   RANGE_DIGITS = 1..6
   DIFFICULTIES = {
-    easy: { attempts: 15, hints: 2, difficulty: 'easy' },
+    easy: { attempts: 15, hints: 4, difficulty: 'easy' },
     hard: { attempts: 10, hints: 2, difficulty: 'hard' },
     expert: { attempts: 5, hints: 1, difficulty: 'expert' }
   }.freeze
@@ -15,6 +15,10 @@ class Game
   attr_accessor :errors
 
   def game_options(user_difficulty:, player:)
+<<<<<<< HEAD
+=======
+    @hints_array = nil
+>>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     @got_hints = ''
     @hints_used = 0
     @attempts_used = 0
@@ -91,12 +95,19 @@ class Game
   end
 
   def secret_code
+<<<<<<< HEAD
     @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+=======
+    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+>>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     convert_to_array(@secret_code)
   end
 
   def guessing(user_code)
+<<<<<<< HEAD
     count_attempt
+=======
+>>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     (@winner = true) && return if compare_with_right_code(user_code)
 
     pin = []

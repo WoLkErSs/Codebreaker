@@ -38,10 +38,13 @@ class Console
 
   def respondent
     @respondent ||= Respondent.new
+<<<<<<< HEAD
   end
 
   def statistic
     @statistic ||= Statistics.new
+=======
+>>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
   end
 
   def process
@@ -104,5 +107,12 @@ class Console
 
   def winners_load
     statistic.winners(load_db)
+<<<<<<< HEAD
+=======
+  end
+
+  def statistic
+    @statistic ||= Statistics.new
+>>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
   end
 end
