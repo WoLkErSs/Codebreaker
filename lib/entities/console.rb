@@ -38,13 +38,10 @@ class Console
 
   def respondent
     @respondent ||= Respondent.new
-<<<<<<< HEAD
   end
 
   def statistic
     @statistic ||= Statistics.new
-=======
->>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
   end
 
   def process
@@ -77,11 +74,13 @@ class Console
   end
 
   def lose
+    game.remove_instance_helpers
     respondent.show_message(:when_lose)
     new_process
   end
 
   def win
+    game.remove_instance_helpers
     respondent.show_message(:when_win)
     save_to_db(game) if input == ACTIONS_FOR_DATABASE[:save_player]
     new_process
@@ -107,12 +106,5 @@ class Console
 
   def winners_load
     statistic.winners(load_db)
-<<<<<<< HEAD
-=======
-  end
-
-  def statistic
-    @statistic ||= Statistics.new
->>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
   end
 end

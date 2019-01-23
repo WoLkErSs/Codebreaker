@@ -4,7 +4,7 @@ class Game
   AMOUNT_DIGITS = 4
   RANGE_DIGITS = 1..6
   DIFFICULTIES = {
-    easy: { attempts: 15, hints: 4, difficulty: 'easy' },
+    easy: { attempts: 15, hints: 2, difficulty: 'easy' },
     hard: { attempts: 10, hints: 2, difficulty: 'hard' },
     expert: { attempts: 5, hints: 1, difficulty: 'expert' }
   }.freeze
@@ -15,10 +15,6 @@ class Game
   attr_accessor :errors
 
   def game_options(user_difficulty:, player:)
-<<<<<<< HEAD
-=======
-    @hints_array = nil
->>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     @got_hints = ''
     @hints_used = 0
     @attempts_used = 0
@@ -37,12 +33,18 @@ class Game
   end
 
   def miss_input
-    @errors = []
     @errors << I18n.t(:when_incorrect_guess) && return
   end
 
   def valid_difficulties?(input)
     DIFFICULTIES.key?(input.to_sym)
+  end
+
+  def remove_instance_helpers
+    remove_instance_variable(:@winner)
+    remove_instance_variable(:@errors)
+    remove_instance_variable(:@hints_array)
+    remove_instance_variable(:@have_hints)
   end
 
   private
@@ -58,6 +60,7 @@ class Game
   def assign_difficulty(difficulty_of_variables)
     @attempts_total = difficulty_of_variables[:attempts]
     @hints_total = difficulty_of_variables[:hints]
+    @have_hints = difficulty_of_variables[:hints]
     @attempts_left = @attempts_total
     @difficulty = difficulty_of_variables[:difficulty]
   end
@@ -76,13 +79,12 @@ class Game
   end
 
   def use_hint
-    @errors = []
-    @errors << I18n.t(:when_no_hints) && return unless @hints_total.positive?
+    @errors << I18n.t(:when_no_hints) && return unless @have_hints.positive?
     count_tip
   end
 
   def count_tip
-    @hints_total -= 1
+    @have_hints -= 1
     @hints_used += 1
     @hints_array ||= secret_code.clone.shuffle
     hint = @hints_array.pop.to_s
@@ -90,24 +92,20 @@ class Game
     hint
   end
 
+  def hints_array
+  end
+
   def compare_with_right_code(user_code)
     user_code == secret_code
   end
 
   def secret_code
-<<<<<<< HEAD
-    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
-=======
     @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
->>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     convert_to_array(@secret_code)
   end
 
   def guessing(user_code)
-<<<<<<< HEAD
     count_attempt
-=======
->>>>>>> 52f842a77abe6c6fd68aec9c975658ff2bdd5765
     (@winner = true) && return if compare_with_right_code(user_code)
 
     pin = []
