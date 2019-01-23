@@ -6,9 +6,7 @@ class Rules
 
   def show_rules
     File.open(PATH, 'r') do |f|
-      f.each_line do |line|
-        puts line
-      end
+      f.each_line { |line| puts line }
       f.close
     end
   end

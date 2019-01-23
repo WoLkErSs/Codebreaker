@@ -8,7 +8,7 @@ module Validation
   end
 
   def valid_digits?(digits, range)
-    digits.split('').map(&:to_i).each do |digit|
+    digits.chars.map(&:to_i).each do |digit|
       return unless validate_in_range?(digit, range)
     end
   end

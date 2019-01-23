@@ -18,7 +18,6 @@ class Game
     @got_hints = ''
     @hints_used = 0
     @attempts_used = 0
-    @winner = nil
     @name = player.name
     assign_difficulty(DIFFICULTIES[user_difficulty.downcase.to_sym])
   end
@@ -100,13 +99,13 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
     convert_to_array(@secret_code)
   end
 
   def guessing(user_code)
     count_attempt
-    (@winner = true) && return if compare_with_right_code(user_code)
+    return @winner = true if compare_with_right_code(user_code)
 
     pin = []
     clone_secret_code = secret_code.clone
@@ -118,11 +117,10 @@ class Game
       user_code.delete_at(user_code.index(user_digit))
       clone_secret_code.delete_at(clone_secret_code.index(secret_digit))
     end
-    clone_secret_code.each do |x|
-      if user_code.include? x
+    clone_secret_code.each do |digit|
+      next unless user_code.include? digit
         pin << '-'
-        user_code.delete_at(user_code.index(x))
-      end
+        user_code.delete_at(user_code.index(digit))
     end
     pin.sort.join('')
   end

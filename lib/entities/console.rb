@@ -11,12 +11,13 @@ class Console
   }.freeze
 
   def choose_action
+    respondent.show_message(:greeting)
     loop do
       respondent.show_message(:choose_action)
       case input
       when USER_ACTIONS[:start] then return process
       when USER_ACTIONS[:rules] then rules.show_rules
-      when USER_ACTIONS[:stats] then statistics
+      when USER_ACTIONS[:stats] then show_statistics
       else respondent.show_message(:wrong_input_action)
       end
     end
@@ -24,8 +25,8 @@ class Console
 
   private
 
-  def process_helper
-    @process_helper ||= ProcessHelper.new
+  def player
+    @player ||= Player.new
   end
 
   def rules
@@ -45,14 +46,31 @@ class Console
   end
 
   def process
-    @player = process_helper.setup_player
-    @difficulty = process_helper.setup_difficulty
-    set_game_options
+    current_player = setup_player
+    player_difficulty = setup_difficulty
+    set_game_options(player_difficulty, current_player)
     play_game
   end
 
-  def set_game_options
-    game.game_options(user_difficulty: @difficulty, player: @player)
+  def setup_player
+    respondent.show_message(:ask_name)
+    loop do
+      player.assign_name(input.capitalize)
+      next respondent.show(respondent.errors_store) unless player.valid?
+      return player if player.valid?
+    end
+  end
+
+  def setup_difficulty
+    loop do
+      respondent.show_message(:select_difficulty)
+      user_difficulty_input = input
+      return user_difficulty_input if game.valid_difficulties?(user_difficulty_input)
+    end
+  end
+
+  def set_game_options(difficulty, player)
+    game.game_options(user_difficulty: difficulty, player: player)
   end
 
   def play_game
@@ -100,11 +118,24 @@ class Console
     exit
   end
 
-  def statistics
+  def show_statistics
     respondent.show(winners_load)
   end
 
   def winners_load
-    statistic.winners(load_db)
+    all_players = statistic.winners(load_db)
+    table(all_players)
+  end
+
+  def table(rows)
+    title = [
+      I18n.t('table_fields.name'),
+      I18n.t('table_fields.difficulty'),
+      I18n.t('table_fields.attempts_total'),
+      I18n.t('table_fields.attempts_used'),
+      I18n.t('table_fields.hints_total'),
+      I18n.t('table_fields.hints_used')
+    ]
+    Terminal::Table.new title: I18n.t('table_heder'), headings: title, rows: rows
   end
 end
