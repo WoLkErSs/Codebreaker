@@ -42,7 +42,7 @@ class Game
   def remove_instance_helpers
     remove_instance_variable(:@winner)
     remove_instance_variable(:@errors)
-    remove_instance_variable(:@hints_array)
+    remove_instance_variable(:@hints_array) if @hints_array
     remove_instance_variable(:@have_hints)
   end
 
@@ -89,9 +89,6 @@ class Game
     hint = @hints_array.pop.to_s
     @got_hints += hint
     hint
-  end
-
-  def hints_array
   end
 
   def compare_with_right_code(user_code)
