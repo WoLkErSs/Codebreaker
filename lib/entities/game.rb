@@ -11,7 +11,7 @@ class Game
   RANGE_OF_DIGITS = 0..4.freeze
   GUESS_CODE = { hint: 'hint', leave: 'exit' }.freeze
 
-  attr_reader :name, :hints_total, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
+  attr_reader :name, :hints_total, :have_hints, :attempts_total, :hints_used, :attempts_used, :difficulty, :winner, :attempts_left
   attr_accessor :errors
 
   def game_options(user_difficulty:, player:)
@@ -40,7 +40,7 @@ class Game
   end
 
   def remove_instance_helpers
-    remove_instance_variable(:@winner)
+    remove_instance_variable(:@winner) if @winner
     remove_instance_variable(:@errors)
     remove_instance_variable(:@hints_array) if @hints_array
     remove_instance_variable(:@have_hints)
@@ -96,7 +96,7 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
     convert_to_array(@secret_code)
   end
 

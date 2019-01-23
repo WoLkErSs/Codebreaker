@@ -28,17 +28,17 @@ RSpec.describe Game do
 
     context 'with user input' do
       it 'with use hint' do
-        allow(subject.instance_variable_set(:@hints_total, 2))
+        allow(subject.instance_variable_set(:@got_hints, ''))
+        allow(subject.instance_variable_set(:@have_hints, 2))
         allow(subject.instance_variable_set(:@hints_used, 2))
-        allow(subject.instance_variable_set(:@errors, []))
-        allow(subject.instance_variable_set(:@arr_for_hints, [1, 2, 3, 4]))
-        expect {subject.attempt(hint)}.to change{subject.hints_total}.by(-1)
+        allow(subject.instance_variable_set(:@hints_array, [2,4,4,2]))
+        expect {subject.attempt(hint)}.to change{subject.have_hints}.by(-1)
         expect {subject.attempt(hint)}.to change{subject.hints_used}.by(1)
-        subject.attempt(hint)
+        expect(subject.instance_variable_get(:@got_hints)).to eq('24')
       end
 
-      it 'when have not hints' do
-        allow(subject.instance_variable_set(:@hints_total, 0))
+      it 'when has not hints' do
+        allow(subject.instance_variable_set(:@have_hints, 0))
         subject.attempt(hint)
         expect(subject.instance_variable_get(:@errors)).to eq([I18n.t(:when_no_hints)])
       end
@@ -57,7 +57,7 @@ RSpec.describe Game do
 
     context 'check validate work of .guessing' do
       [
-        ['6541', '6541', nil],
+        ['6541', '6541', true],
         ['1234', '5612', '--'],
         ['5566', '5611', '+-'],
         ['6235', '2365', '+---'],

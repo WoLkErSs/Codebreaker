@@ -46,9 +46,7 @@ class Console
   end
 
   def process
-    current_player = setup_player
-    player_difficulty = setup_difficulty
-    set_game_options(player_difficulty, current_player)
+    game.game_options(user_difficulty: setup_difficulty, player: setup_player)
     play_game
   end
 
@@ -69,16 +67,13 @@ class Console
     end
   end
 
-  def set_game_options(difficulty, player)
-    game.game_options(user_difficulty: difficulty, player: player)
-  end
-
   def play_game
     respondent.show_message(:in_process)
     while game_state_valid?
       what_guessed = game.attempt(input)
-      respondent.show(what_guessed) if what_guessed
-      respondent.show(game.errors) unless game.errors.empty?
+      next if game.winner
+        respondent.show(what_guessed) if what_guessed
+        respondent.show(game.errors) unless game.errors.empty?
     end
     result_decision
   end
@@ -136,6 +131,6 @@ class Console
       I18n.t('table_fields.hints_total'),
       I18n.t('table_fields.hints_used')
     ]
-    Terminal::Table.new title: I18n.t('table_heder'), headings: title, rows: rows
+    # Terminal::Table.new title: I18n.t('table_heder'), headings: title, rows: rows
   end
 end
