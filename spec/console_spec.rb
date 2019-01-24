@@ -69,7 +69,7 @@ RSpec.describe Console do
       allow(subject).to receive(:respondent).and_return(respondent_double)
       allow(respondent_double).to receive(:show)
       allow(respondent_double).to receive(:show_message)
-      allow(respondent_double).to receive(:errors_store)
+      allow(player_double).to receive(:errors_store)
       allow(player_double).to receive(:assign_name)
       allow(player_double).to receive(:valid?).and_return(false, true)
       allow(subject).to receive(:setup_difficulty)

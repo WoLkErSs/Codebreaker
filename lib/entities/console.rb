@@ -54,7 +54,7 @@ class Console
     respondent.show_message(:ask_name)
     loop do
       player.assign_name(input.capitalize)
-      next respondent.show(respondent.errors_store) unless player.valid?
+      next respondent.show(player.errors_store) unless player.valid?
       return player if player.valid?
     end
   end
@@ -118,19 +118,6 @@ class Console
   end
 
   def winners_load
-    all_players = statistic.winners(load_db)
-    table(all_players)
-  end
-
-  def table(rows)
-    title = [
-      I18n.t('table_fields.name'),
-      I18n.t('table_fields.difficulty'),
-      I18n.t('table_fields.attempts_total'),
-      I18n.t('table_fields.attempts_used'),
-      I18n.t('table_fields.hints_total'),
-      I18n.t('table_fields.hints_used')
-    ]
-    # Terminal::Table.new title: I18n.t('table_heder'), headings: title, rows: rows
+    statistic.winners(load_db)
   end
 end
