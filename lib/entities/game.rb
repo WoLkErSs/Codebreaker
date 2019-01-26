@@ -41,9 +41,9 @@ class Game
 
   def remove_instance_helpers
     remove_instance_variable(:@winner) if @winner
-    remove_instance_variable(:@errors)
+    remove_instance_variable(:@errors) if @errors
     remove_instance_variable(:@hints_array) if @hints_array
-    remove_instance_variable(:@have_hints)
+    remove_instance_variable(:@have_hints) if @have_hints
   end
 
   private
@@ -96,7 +96,7 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
     convert_to_array(@secret_code)
   end
 
