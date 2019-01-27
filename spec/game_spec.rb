@@ -100,14 +100,18 @@ RSpec.describe Game do
 
   describe '#valid_difficulties?' do
     let(:invalid_input) {'ysae'}
-    let(:valid_input) {'easy'}
-
-    it 'when valid difficulty' do
-      expect(subject.valid_difficulties?(invalid_input)). to eq(false)
+    [
+      Game::DIFFICULTIES[:easy][:difficulty],
+      Game::DIFFICULTIES[:hard][:difficulty],
+      Game::DIFFICULTIES[:expert][:difficulty]
+    ].each do |level|
+      it 'when valid difficulty' do
+        expect(subject.valid_difficulties?(level.to_sym)). to eq(true)
+      end
     end
 
     it 'when invalid difficulty' do
-      expect(subject.valid_difficulties?(valid_input)). to eq(true)
+      expect(subject.valid_difficulties?(invalid_input)). to eq(false)
     end
   end
 end

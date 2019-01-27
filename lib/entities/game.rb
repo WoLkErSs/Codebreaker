@@ -96,7 +96,7 @@ class Game
   end
 
   def secret_code
-    @secret_code ||= '1234'#Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
+    @secret_code ||= Array.new(AMOUNT_DIGITS) { rand(RANGE_OF_DIGITS) }.join('')
     convert_to_array(@secret_code)
   end
 

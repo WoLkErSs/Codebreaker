@@ -2,8 +2,8 @@ RSpec.describe Player do
   let(:correct_input) {'I' * max_length}
   let(:less_then_correct_input) { 'I' * (min_length - 1) }
   let(:greater_then_correct_input) { 'I'*(max_length + 1) }
-  let(:min_length) {3}
-  let(:max_length) {20}
+  let(:min_length) {Player::LENGTH_RANGE.first}
+  let(:max_length) {Player::LENGTH_RANGE.last}
 
   describe '#assign_name(input)' do
     it 'with right pass name' do
